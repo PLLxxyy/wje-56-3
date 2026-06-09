@@ -77,45 +77,51 @@ export const usePodcastStore = create<PodcastStore>()(
 
       setPodcast: (info) =>
         set((state) => {
-          const newState = {
-            podcast: { ...state.podcast, ...info },
-          };
+          const podcast = { ...state.podcast, ...info };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              podcast,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, podcast, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { podcast };
         }),
 
       setRawChapterText: (text) => {
         const chapters = parseChapters(text);
         set((state) => {
-          const newState = { rawChapterText: text, chapters };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              rawChapterText: text,
+              chapters,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, rawChapterText: text, chapters, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { rawChapterText: text, chapters };
         });
       },
 
       setChapters: (chapters) =>
         set((state) => {
-          const newState = { chapters };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              chapters,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, chapters, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { chapters };
         }),
 
       updateChapter: (id, updates) =>
@@ -123,29 +129,33 @@ export const usePodcastStore = create<PodcastStore>()(
           const chapters = state.chapters.map((ch) =>
             ch.id === id ? { ...ch, ...updates } : ch
           );
-          const newState = { chapters };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              chapters,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, chapters, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { chapters };
         }),
 
       removeChapter: (id) =>
         set((state) => {
           const chapters = state.chapters.filter((ch) => ch.id !== id);
-          const newState = { chapters };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              chapters,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, chapters, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { chapters };
         }),
 
       addChapter: () =>
@@ -159,50 +169,56 @@ export const usePodcastStore = create<PodcastStore>()(
               title: '新章节',
             },
           ];
-          const newState = { chapters };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              chapters,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, chapters, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { chapters };
         }),
 
       setTemplate: (template) =>
         set((state) => {
-          const newState = { template };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              template,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, template, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { template };
         }),
 
       setSize: (size) =>
         set((state) => {
-          const newState = { size };
           if (state.currentDraftId) {
-            newState.drafts = state.drafts.map((d) =>
-              d.id === state.currentDraftId
-                ? { ...d, ...newState, updatedAt: Date.now() }
-                : d
-            );
+            return {
+              size,
+              drafts: state.drafts.map((d) =>
+                d.id === state.currentDraftId
+                  ? { ...d, size, updatedAt: Date.now() }
+                  : d
+              ),
+            };
           }
-          return newState;
+          return { size };
         }),
 
       reset: () =>
         set((state) => {
           const resetState = {
             podcast: defaultPodcast,
-            chapters: [],
-            template: 'dark',
-            size: 'portrait',
+            chapters: [] as Chapter[],
+            template: 'dark' as TemplateType,
+            size: 'portrait' as SizeType,
             rawChapterText: '',
           };
           if (state.currentDraftId) {
@@ -304,19 +320,20 @@ export const usePodcastStore = create<PodcastStore>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        if (!state.drafts || state.drafts.length === 0) {
+        const s = state as PodcastStore;
+        if (!s.drafts || s.drafts.length === 0) {
           const cardState: CardState = {
-            podcast: state.podcast,
-            chapters: state.chapters,
-            template: state.template,
-            size: state.size,
-            rawChapterText: state.rawChapterText,
+            podcast: s.podcast,
+            chapters: s.chapters,
+            template: s.template,
+            size: s.size,
+            rawChapterText: s.rawChapterText,
           };
           const initialDraft = createDraft('草稿 1', cardState);
-          state.drafts = [initialDraft];
-          state.currentDraftId = initialDraft.id;
-        } else if (!state.currentDraftId) {
-          state.currentDraftId = state.drafts[0].id;
+          s.drafts = [initialDraft];
+          s.currentDraftId = initialDraft.id;
+        } else if (!s.currentDraftId) {
+          s.currentDraftId = s.drafts[0].id;
         }
       },
     }
