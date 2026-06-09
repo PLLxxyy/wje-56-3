@@ -23,3 +23,10 @@ export interface CardState {
   size: SizeType;
   rawChapterText: string;
 }
+
+export interface Draft extends CardState {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+}

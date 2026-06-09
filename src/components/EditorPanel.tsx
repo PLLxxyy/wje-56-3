@@ -3,6 +3,7 @@ import { ChapterInput } from './ChapterInput';
 import { CoverUpload } from './CoverUpload';
 import { TemplateSelector } from './TemplateSelector';
 import { SizeSelector } from './SizeSelector';
+import { DraftManager } from './DraftManager';
 import { RotateCcw } from 'lucide-react';
 import { usePodcastStore } from '../store/usePodcastStore';
 
@@ -19,13 +20,15 @@ export function EditorPanel() {
         <button
           onClick={reset}
           className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
-          title="重置所有内容"
+          title="重置当前草稿内容"
         >
           <RotateCcw className="w-5 h-5" />
         </button>
       </div>
 
       <div className="space-y-6">
+        <DraftManager />
+
         <div className="p-4 bg-zinc-900/50 rounded-xl border border-zinc-800">
           <PodcastForm />
         </div>
